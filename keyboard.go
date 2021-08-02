@@ -16,6 +16,7 @@ func keyboardTTYLoop() {
 	for {
 		r, key, err := keyboard.GetKey()
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 		fmt.Printf("You pressed: rune %q, key %X\r\n", r, key)
@@ -53,7 +54,7 @@ func keyboardReaderLoop() {
 
 func startKeyoardIOLoop() {
 	if err := keyboard.Open(); err == nil {
-		defer keyboard.Close()
+		fmt.Println("keyboard open", err)
 		go keyboardTTYLoop()
 	} else {
 		go keyboardReaderLoop()

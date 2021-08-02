@@ -5,6 +5,7 @@ import (
 
 	mt "github.com/brettbuddin/musictheory"
 	"github.com/brettbuddin/musictheory/intervals"
+	"github.com/eiannone/keyboard"
 )
 
 /*
@@ -21,14 +22,15 @@ func main() {
 	fmt.Println(mt.NewScale(root, intervals.Dorian, 1))
 
 	startKeyoardIOLoop()
+	defer keyboard.Close()
 
 	for {
 		select {
 		case <-quit:
 			fmt.Println("Exiting...")
 			return
-		case <-keyboardInput:
-			// fmt.Println("Got: ", i)
+		case i := <-keyboardInput:
+			fmt.Printf("%d", i)
 		}
 	}
 }
