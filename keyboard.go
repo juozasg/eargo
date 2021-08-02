@@ -12,14 +12,16 @@ var quit = make(chan int)
 var keyboardInput = make(chan int)
 
 func keyboardTTYLoop() {
-	fmt.Println("Press ESC to quit")
+	fmt.Println("** Press ESC to quit **")
 	for {
+		mu.Lock()
 		r, key, err := keyboard.GetKey()
+		mu.Unlock()
+
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Keyboard error:", err)
 			return
 		}
-		fmt.Printf("You pressed: rune %q, key %X\r\n", r, key)
 
 		input := int(key)
 		if input == 0 {
@@ -43,7 +45,6 @@ func keyboardReaderLoop() {
 	for {
 		fmt.Print("> ")
 		r, _, _ := reader.ReadRune()
-		fmt.Println("read: ", r)
 		if r == rune(113) {
 			quit <- 1
 		}
@@ -54,9 +55,16 @@ func keyboardReaderLoop() {
 
 func startKeyoardIOLoop() {
 	if err := keyboard.Open(); err == nil {
-		fmt.Println("keyboard open", err)
 		go keyboardTTYLoop()
 	} else {
 		go keyboardReaderLoop()
 	}
+}
+
+func cleanupKeyboard() {
+	mu.Lock()
+
+	keyboard.Close()
+
+	mu.Unlock()
 }

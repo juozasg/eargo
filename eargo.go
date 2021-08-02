@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"sync"
 
 	mt "github.com/brettbuddin/musictheory"
 	"github.com/brettbuddin/musictheory/intervals"
-	"github.com/eiannone/keyboard"
 )
+
+var mu sync.Mutex
 
 /*
 	TODO:
@@ -16,21 +18,27 @@ import (
 */
 
 func main() {
+	fmt.Println("music theory data structures:")
 	root := mt.NewPitch(mt.C, mt.Natural, 4)
-	fmt.Println("hello!")
 	fmt.Println(root.Name(mt.AscNames), "MIDI", root.MIDI())
-	fmt.Println(mt.NewScale(root, intervals.Dorian, 1))
+	fmt.Println(mt.NewScale(root, intervals.Phrygian, 1))
 
 	startKeyoardIOLoop()
-	defer keyboard.Close()
+	defer cleanupKeyboard()
 
+	startMIDILoop()
+	defer cleanupMIDI()
+
+	fmt.Println("Ready!")
 	for {
 		select {
 		case <-quit:
 			fmt.Println("Exiting...")
 			return
-		case i := <-keyboardInput:
-			fmt.Printf("%d", i)
+		case <-keyboardInput:
+			// fmt.Printf("%d", i)
+		case e := <-midiEvents:
+			fmt.Println(e)
 		}
 	}
 }
