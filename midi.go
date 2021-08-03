@@ -59,22 +59,6 @@ func connectMIDIInput() {
 	go filterNoteEvents()
 }
 
-// func waitForFluidsynth() {
-// 	deviceId, _ := fluidsynthDeviceId()
-
-// 	for retries := 0; retries < 200 && deviceId == -1; retries++ {
-// 		time.Sleep(time.Millisecond * 1000)
-// 		portmidi.Terminate()
-// 		portmidi.Initialize()
-
-// 		deviceId, _ = fluidsynthDeviceId()
-
-// 		if deviceId != -1 {
-// 			return
-// 		}
-// 	}
-// }
-
 func fluidsynthDeviceId() (int, *portmidi.DeviceInfo) {
 	for id := 0; id < portmidi.CountDevices(); id++ {
 		info := portmidi.Info(portmidi.DeviceID(id))
@@ -111,7 +95,6 @@ func connectMIDI() {
 	fmt.Println("Initializing MIDI...")
 	portmidi.Initialize()
 
-	// waitForFluidsynth()
 	dumpMIDIDevices()
 
 	connectMIDIOutput()
