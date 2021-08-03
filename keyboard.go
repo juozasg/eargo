@@ -63,6 +63,6 @@ func startKeyoardIOLoop() {
 }
 
 func cleanupKeyboard() {
-	fmt.Println("keyboard cleanup")
+	fmt.Println("Keyboard cleanup")
 	keyboard.Close()
 }

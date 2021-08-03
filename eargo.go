@@ -13,6 +13,7 @@ import (
 func cleanup() {
 	cleanupKeyboard()
 	cleanupMIDI()
+	stopFluidsynth()
 	fmt.Println("Bye")
 	os.Exit(0)
 }
@@ -39,8 +40,8 @@ func main() {
 
 	prepareCleanup()
 	startKeyoardIOLoop()
-	connectMIDI()
 	startFluidsynth()
+	go connectMIDI()
 
 	for {
 		select {
