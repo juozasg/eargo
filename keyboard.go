@@ -14,12 +14,14 @@ var keyboardInput = make(chan int)
 func keyboardTTYLoop() {
 	fmt.Println("** Press ESC to quit **")
 	for {
-		mu.Lock()
-		r, key, err := keyboard.GetKey()
-		mu.Unlock()
+
+		r, key, err := keyboard.GetSingleKey()
 
 		if err != nil {
-			fmt.Println("Keyboard error:", err)
+			// ignore keyboard.Close() error
+			if err.Error() != "operation canceled" {
+				fmt.Println("Keyboard error:", err)
+			}
 			return
 		}
 
@@ -62,9 +64,5 @@ func startKeyoardIOLoop() {
 }
 
 func cleanupKeyboard() {
-	mu.Lock()
-
 	keyboard.Close()
-
-	mu.Unlock()
 }

@@ -2,13 +2,10 @@ package main
 
 import (
 	"fmt"
-	"sync"
 
 	mt "github.com/brettbuddin/musictheory"
 	"github.com/brettbuddin/musictheory/intervals"
 )
-
-var mu sync.Mutex
 
 /*
 	TODO:
@@ -26,14 +23,13 @@ func main() {
 	startKeyoardIOLoop()
 	defer cleanupKeyboard()
 
-	startMIDILoop()
+	go startMIDILoop()
 	defer cleanupMIDI()
 
-	fmt.Println("Ready!")
 	for {
 		select {
 		case <-quit:
-			fmt.Println("Exiting...")
+			fmt.Println("Exiting!")
 			return
 		case <-keyboardInput:
 			// fmt.Printf("%d", i)
