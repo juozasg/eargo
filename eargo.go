@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	mt "github.com/brettbuddin/musictheory"
 	"github.com/brettbuddin/musictheory/intervals"
@@ -9,10 +12,31 @@ import (
 
 /*
 	TODO:
-	1) read midi in
-	2) determine the note pitch
-	0) play a sound with a pitch
+	1. test with midi keyboard again
+	2. play sound
+
 */
+
+func cleanup() {
+	cleanupKeyboard()
+	cleanupMIDI()
+	fmt.Println("Bye")
+	os.Exit(0)
+}
+
+var sigchan = make(chan os.Signal, 1)
+
+func prepareCleanup() {
+	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		select {
+		case <-sigchan:
+			cleanup()
+		case <-quit:
+			cleanup()
+		}
+	}()
+}
 
 func main() {
 	fmt.Println("music theory data structures:")
@@ -20,21 +44,16 @@ func main() {
 	fmt.Println(root.Name(mt.AscNames), "MIDI", root.MIDI())
 	fmt.Println(mt.NewScale(root, intervals.Phrygian, 1))
 
+	prepareCleanup()
+	startMIDILoop()
 	startKeyoardIOLoop()
-	defer cleanupKeyboard()
-
-	go startMIDILoop()
-	defer cleanupMIDI()
 
 	for {
 		select {
-		case <-quit:
-			fmt.Println("Exiting!")
-			return
-		case <-keyboardInput:
-			// fmt.Printf("%d", i)
-		case e := <-midiEvents:
-			fmt.Println(e)
+		case i := <-keyboardInput:
+			fmt.Printf("Key: %d\n", i)
+		case e := <-noteEvents:
+			fmt.Printf("Note %#x: %d\n", e.Status, e.Data1)
 		}
 	}
 }

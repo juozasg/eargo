@@ -14,8 +14,7 @@ var keyboardInput = make(chan int)
 func keyboardTTYLoop() {
 	fmt.Println("** Press ESC to quit **")
 	for {
-
-		r, key, err := keyboard.GetSingleKey()
+		r, key, err := keyboard.GetKey()
 
 		if err != nil {
 			// ignore keyboard.Close() error
@@ -39,8 +38,6 @@ func keyboardTTYLoop() {
 }
 
 func keyboardReaderLoop() {
-	fmt.Println("Using STDIN")
-
 	fmt.Println("Type q to quit")
 	reader := bufio.NewReader(os.Stdin)
 
@@ -58,8 +55,6 @@ func keyboardReaderLoop() {
 func startKeyoardIOLoop() {
 	if err := keyboard.Open(); err == nil {
 		go keyboardTTYLoop()
-	} else {
-		go keyboardReaderLoop()
 	}
 }
 
