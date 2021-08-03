@@ -2,19 +2,17 @@ package main
 
 import (
 	"fmt"
-	"time"
+	// "time"
 
 	mt "github.com/brettbuddin/musictheory"
 )
 
 func startFluidsynth() {
 	fmt.Println("Started fluidsynth")
+	//bin/fluidsynth share/fluid-synth/sf2/VintageDreamsWaves-v2.sf2  -p eargo-fluidsynth -s -i
 }
 
-func playNote(p mt.Pitch) {
+func synthNote(event int64, p mt.Pitch) {
 	// fmt.Println("bleeeoop ", p.Name(mt.AscNames))
-
-	midiOutStream.WriteShort(midiNoteOn, int64(p.MIDI()), 100)
-	time.Sleep(time.Millisecond * 200)
-	midiOutStream.WriteShort(midiNoteOff, int64(p.MIDI()), 100)
+	midiOutStream.WriteShort(event, int64(p.MIDI()), 127)
 }

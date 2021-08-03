@@ -50,10 +50,7 @@ func main() {
 			semitones := int(e.Data1) - 24
 			pitch := mt.Pitch{Interval: mt.Semitones(semitones)}
 			// fmt.Printf("Note %#x: %d\n", e.Status, e.Data1)
-
-			if e.Status == midiNoteOn {
-				go playNote(pitch)
-			}
+			go synthNote(e.Status, pitch)
 		}
 	}
 }
