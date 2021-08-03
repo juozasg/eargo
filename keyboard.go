@@ -55,6 +55,8 @@ func keyboardReaderLoop() {
 func startKeyoardIOLoop() {
 	if err := keyboard.Open(); err == nil {
 		go keyboardTTYLoop()
+	} else {
+		go keyboardReaderLoop()
 	}
 }
 
