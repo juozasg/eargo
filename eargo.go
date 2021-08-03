@@ -49,10 +49,10 @@ func main() {
 		case e := <-noteEvents:
 			semitones := int(e.Data1) - 24
 			pitch := mt.Pitch{Interval: mt.Semitones(semitones)}
-			fmt.Printf("Note %#x: %d\n", e.Status, e.Data1)
+			// fmt.Printf("Note %#x: %d\n", e.Status, e.Data1)
 
 			if e.Status == midiNoteOn {
-				playNote(pitch)
+				go playNote(pitch)
 			}
 		}
 	}
