@@ -33,6 +33,7 @@ func keyboardTTYLoop() {
 
 		if key == keyboard.KeyEsc {
 			quit <- 1
+			return
 		}
 	}
 }
@@ -46,6 +47,7 @@ func keyboardReaderLoop() {
 		r, _, _ := reader.ReadRune()
 		if r == rune(113) {
 			quit <- 1
+			return
 		}
 
 		keyboardInput <- int(r)
@@ -61,5 +63,6 @@ func startKeyoardIOLoop() {
 }
 
 func cleanupKeyboard() {
+	fmt.Println("keyboard cleanup")
 	keyboard.Close()
 }

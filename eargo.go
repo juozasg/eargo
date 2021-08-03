@@ -10,13 +10,6 @@ import (
 	"github.com/brettbuddin/musictheory/intervals"
 )
 
-/*
-	TODO:
-	1. test with midi keyboard again
-	2. play sound
-
-*/
-
 func cleanup() {
 	cleanupKeyboard()
 	cleanupMIDI()
@@ -45,15 +38,22 @@ func main() {
 	fmt.Println(mt.NewScale(root, intervals.Phrygian, 1))
 
 	prepareCleanup()
-	startMIDILoop()
 	startKeyoardIOLoop()
+	connectMIDI()
+	startFluidsynth()
 
 	for {
 		select {
 		case i := <-keyboardInput:
 			fmt.Printf("Key: %d\n", i)
 		case e := <-noteEvents:
+			semitones := int(e.Data1) - 24
+			pitch := mt.Pitch{Interval: mt.Semitones(semitones)}
 			fmt.Printf("Note %#x: %d\n", e.Status, e.Data1)
+
+			if e.Status == midiNoteOn {
+				playNote(pitch)
+			}
 		}
 	}
 }
