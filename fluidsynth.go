@@ -42,6 +42,6 @@ func stopFluidsynth() {
 }
 
 func synthNote(event int64, p mt.Pitch) {
-	// fmt.Println("bleeeoop ", p.Name(mt.AscNames))
+	fmt.Println("bleeeoop ", p.Name(mt.AscNames), p.MIDI())
 	midiOutStream.WriteShort(event, int64(p.MIDI()), 127)
 }

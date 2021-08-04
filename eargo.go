@@ -39,19 +39,9 @@ func main() {
 	fmt.Println(mt.NewScale(root, intervals.Phrygian, 1))
 
 	prepareCleanup()
-	startKeyoardIOLoop()
 	startFluidsynth()
-	go connectMIDI()
+	connectMIDI()
+	startKeyoardIOLoop()
 
-	for {
-		select {
-		case i := <-keyboardInput:
-			fmt.Printf("Key: %d\n", i)
-		case e := <-noteEvents:
-			semitones := int(e.Data1) - 24
-			pitch := mt.Pitch{Interval: mt.Semitones(semitones)}
-			// fmt.Printf("Note %#x: %d\n", e.Status, e.Data1)
-			go synthNote(e.Status, pitch)
-		}
-	}
+	gameLoop()
 }
