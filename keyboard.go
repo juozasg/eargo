@@ -66,8 +66,9 @@ func startKeyoardIOLoop() {
 }
 
 func cleanupKeyboard() {
-	fmt.Println("Keyboard cleanup")
+	fmt.Println("Closing keyboard TTY...")
 	if keyboardTTYOpened {
 		keyboard.Close()
+		keyboardTTYOpened = false
 	}
 }

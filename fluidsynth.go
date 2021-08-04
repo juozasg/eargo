@@ -33,15 +33,15 @@ func startFluidsynth() {
 func stopFluidsynth() {
 	if fluidsynthCmd != nil {
 		// Kill it:
+		fmt.Println("Stopping fluidsynth...")
 		if err := fluidsynthCmd.Process.Kill(); err != nil {
 			fmt.Println("Failed to kill process: ", err)
 		}
 
-		fmt.Println("Stopped fluidsynth")
 	}
 }
 
 func synthNote(event int64, p mt.Pitch) {
-	fmt.Println("bleeeoop ", p.Name(mt.AscNames), p.MIDI())
+	// fmt.Println("bleeeoop ", p.Name(mt.AscNames), p.MIDI())
 	midiOutStream.WriteShort(event, int64(p.MIDI()), 127)
 }

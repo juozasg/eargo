@@ -4,16 +4,34 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime/debug"
+	"sync"
 	"syscall"
-
-	mt "github.com/brettbuddin/musictheory"
-	"github.com/brettbuddin/musictheory/intervals"
 )
 
+var cleanedUp = false
+var mu sync.Mutex
+
+func cleanupPanic() {
+	if r := recover(); r != nil {
+		fmt.Println("PANIC", r)
+		fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
+	}
+
+	cleanup()
+}
+
 func cleanup() {
-	cleanupKeyboard()
-	cleanupMIDI()
-	stopFluidsynth()
+	mu.Lock()
+
+	if !cleanedUp {
+		cleanupKeyboard()
+		cleanupMIDI()
+		stopFluidsynth()
+		cleanedUp = true
+	}
+	mu.Unlock()
+
 	fmt.Println("Bye")
 	os.Exit(0)
 }
@@ -33,12 +51,10 @@ func prepareCleanup() {
 }
 
 func main() {
-	fmt.Println("music theory data structures:")
-	root := mt.NewPitch(mt.C, mt.Natural, 4)
-	fmt.Println(root.Name(mt.AscNames), "MIDI", root.MIDI())
-	fmt.Println(mt.NewScale(root, intervals.Phrygian, 1))
-
+	// handle panics, os signals and quit channel signal
+	defer cleanupPanic()
 	prepareCleanup()
+
 	startFluidsynth()
 	connectMIDI()
 	startKeyoardIOLoop()
