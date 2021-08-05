@@ -59,6 +59,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	mt "github.com/brettbuddin/musictheory"
@@ -69,7 +70,11 @@ func pName(p mt.Pitch) string {
 }
 
 func gameLoop() {
+	seed := time.Now().Unix()
+	rand.Seed(seed)
+
 	fmt.Println("** Eargo game is ready! **")
+	fmt.Println("** rand seed =", seed, "**")
 	fmt.Println("")
 
 	gs := NewGameState()

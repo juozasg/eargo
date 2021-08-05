@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"time"
 
 	mt "github.com/brettbuddin/musictheory"
@@ -27,7 +28,11 @@ func (gs *GameState) PrepareChallenge() {
 	c := Challenge{Pitches: make([]mt.Pitch, 2), Bounty: 100}
 
 	c.Pitches[0] = mt.NewPitch(mt.C, mt.Natural, 3)
-	c.Pitches[1] = mt.NewPitch(mt.E, mt.Natural, 3)
+
+	pitches := []string{"E2", "G2", "E3", "G3"}
+
+	pickedPitch := pitches[rand.Intn(len(pitches))]
+	c.Pitches[1] = mt.MustParsePitch(pickedPitch)
 
 	gs.Challenge = c
 }
