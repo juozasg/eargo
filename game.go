@@ -59,72 +59,21 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	mt "github.com/brettbuddin/musictheory"
 )
 
-type Challenge struct {
-	Pitches []mt.Pitch
-	Bounty  int
-}
-
 func pName(p mt.Pitch) string {
 	return p.Name(mt.AscNames)
 }
 
-func playChallenge(c Challenge) {
-	var t = tempo * int(time.Millisecond)
-	for i, p := range c.Pitches {
-		if i == 0 {
-			fmt.Println(pName(p))
-		} else {
-			fmt.Println("?")
-		}
-
-		synthNote(midiNoteOn, p)
-		time.Sleep(time.Duration(t / 2))
-		synthNote(midiNoteOff, p)
-		time.Sleep(time.Duration(t / 2))
-	}
-
-	fmt.Println("* Tap", pName(c.Pitches[0]), "twice to replay the sequence (with tempo)")
-}
-
-func newChallenge() Challenge {
-	c := Challenge{Pitches: make([]mt.Pitch, 2), Bounty: 100}
-
-	c.Pitches[0] = mt.NewPitch(mt.C, mt.Natural, 3)
-	c.Pitches[1] = mt.NewPitch(mt.E, mt.Natural, 3)
-
-	return c
-}
-
-var noPitch mt.Pitch
-var challenge Challenge
-var lastNoteTime time.Time
-var lastPitch mt.Pitch
-var tempo int = 1000
-
-func prepareChallenge() {
-	challenge = newChallenge()
-
-	fmt.Println("Your challenge: ")
-	time.Sleep(300 * time.Millisecond)
-	playChallenge(challenge)
-
-	lastPitch = noPitch
-	lastNoteTime = time.Now()
-}
-
 func gameLoop() {
-	noPitch, _ = mt.ParsePitch("C12")
-
 	fmt.Println("** Eargo game is ready! **")
 	fmt.Println("")
 
-	prepareChallenge()
+	gs := NewGameState()
+	gs.BeginChallenge()
 
 	for {
 		select {
@@ -140,23 +89,17 @@ func gameLoop() {
 				// fmt.Println("last pitch: ", pName(lastPitch))
 				// fmt.Println("this pitch: ", pName(pitch))
 
-				if lastPitch == challenge.Pitches[0] {
-					if pitch == challenge.Pitches[0] {
-						timeDiff := time.Since(lastNoteTime)
-						tempo = int(math.Min(float64(timeDiff.Milliseconds()), 2000))
+				if gs.LastPitch == gs.FirstPitch() {
+					if pitch == gs.FirstPitch() {
+						gs.SetTappedTempo()
 						time.Sleep(500 * time.Millisecond)
-
-						fmt.Printf("* Your challenge:\n")
-						playChallenge(challenge)
-
-						lastPitch = noPitch
-						lastNoteTime = time.Now()
+						gs.BeginChallenge()
 
 						continue
-					} else if pitch == challenge.Pitches[1] {
-						fmt.Println("* Yes! You win ", challenge.Bounty, "points!")
+					} else if pitch == gs.SecondPitch() {
+						fmt.Println("* Yes! You win ", gs.Challenge.Bounty, "points!")
 						time.Sleep(400 * time.Millisecond)
-						prepareChallenge()
+						gs.PrepareChallenge()
 
 						continue
 					} else {
@@ -164,8 +107,7 @@ func gameLoop() {
 					}
 				}
 
-				lastPitch = pitch
-				lastNoteTime = time.Now()
+				gs.SetLastPitch(pitch)
 			}
 
 		}
