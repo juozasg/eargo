@@ -37,9 +37,9 @@ func (gs *GameState) PrepareChallenge() {
 	gs.Challenge = c
 }
 
-func (gs GameState) BeginChallenge() {
+func (gs *GameState) BeginChallenge() {
 	fmt.Printf("* Your challenge:\n")
-	gs.PlayChallenge()
+	go gs.PlayChallenge()
 
 	gs.SetLastPitch(blankPitch)
 }
@@ -48,6 +48,7 @@ func (gs GameState) PlayChallenge() {
 	var t = gs.Tempo * int(time.Millisecond)
 	var c = gs.Challenge
 
+	time.Sleep(500 * time.Millisecond)
 	for i, p := range c.Pitches {
 		if i == 0 {
 			fmt.Println(pName(p))
@@ -83,7 +84,7 @@ func (gs *GameState) SetTappedTempo() {
 }
 
 func NewGameState() GameState {
-	gs := GameState{Tempo: 1000}
+	gs := GameState{Tempo: 1000, InputReady: false}
 
 	gs.PrepareChallenge()
 

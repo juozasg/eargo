@@ -97,7 +97,6 @@ func gameLoop() {
 				if gs.LastPitch == gs.FirstPitch() {
 					if pitch == gs.FirstPitch() {
 						gs.SetTappedTempo()
-						time.Sleep(500 * time.Millisecond)
 						gs.BeginChallenge()
 
 						continue
@@ -105,6 +104,7 @@ func gameLoop() {
 						fmt.Println("* Yes! You win ", gs.Challenge.Bounty, "points!")
 						time.Sleep(400 * time.Millisecond)
 						gs.PrepareChallenge()
+						gs.BeginChallenge()
 
 						continue
 					} else {
