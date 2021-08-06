@@ -101,14 +101,15 @@ func gameLoop() {
 
 						continue
 					} else if pitch == gs.SecondPitch() {
-						fmt.Println("* Yes! You win ", gs.Challenge.Bounty, "points!")
-						time.Sleep(400 * time.Millisecond)
+
+						gs.Winning()
 						gs.PrepareChallenge()
 						gs.BeginChallenge()
 
 						continue
 					} else {
-						fmt.Println("Nope")
+						gs.Nope()
+
 					}
 				}
 

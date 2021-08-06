@@ -15,6 +15,7 @@ var blankPitch = mt.Pitch{Interval: mt.Interval{12, 0, 0}}
 type Challenge struct {
 	Pitches []mt.Pitch
 	Bounty  int
+	Tries   int
 }
 
 type GameState struct {
@@ -22,14 +23,15 @@ type GameState struct {
 	LastPitch    mt.Pitch
 	Tempo        int
 	Challenge    Challenge
+	Score        int
 }
 
+var pitches = []string{"E2", "G2", "E3", "G3"}
+
 func (gs *GameState) PrepareChallenge() {
-	c := Challenge{Pitches: make([]mt.Pitch, 2), Bounty: 100}
+	c := Challenge{Pitches: make([]mt.Pitch, 2), Bounty: 100, Tries: 0}
 
 	c.Pitches[0] = mt.NewPitch(mt.C, mt.Natural, 3)
-
-	pitches := []string{"E2", "G2", "E3", "G3"}
 
 	pickedPitch := pitches[rand.Intn(len(pitches))]
 	c.Pitches[1] = mt.MustParsePitch(pickedPitch)
@@ -38,7 +40,6 @@ func (gs *GameState) PrepareChallenge() {
 }
 
 func (gs *GameState) BeginChallenge() {
-	fmt.Printf("* Your challenge:\n")
 	go gs.PlayChallenge()
 
 	gs.SetLastPitch(blankPitch)
@@ -48,12 +49,13 @@ func (gs GameState) PlayChallenge() {
 	var t = gs.Tempo * int(time.Millisecond)
 	var c = gs.Challenge
 
+	fmt.Printf("> Challenge:   |   ")
 	time.Sleep(500 * time.Millisecond)
 	for i, p := range c.Pitches {
 		if i == 0 {
-			fmt.Println(pName(p))
+			fmt.Printf("%s  ", pName(p))
 		} else {
-			fmt.Println("?")
+			fmt.Printf("?   ")
 		}
 
 		synthNote(midiNoteOn, p)
@@ -62,7 +64,47 @@ func (gs GameState) PlayChallenge() {
 		time.Sleep(time.Duration(t / 2))
 	}
 
-	fmt.Println("* Tap", pName(c.Pitches[0]), "twice to replay the sequence (with tempo)")
+	fmt.Printf("|\tBounty: %4d", gs.Challenge.Bounty)
+	fmt.Println("\t\t (", pName(c.Pitches[0]), pName(c.Pitches[0]), "to replay)")
+}
+
+func (gs GameState) PlayWinning() {
+	// revPitches := reverseCopy(pitches)
+
+	time.Sleep(100 * time.Millisecond)
+	for i := 0; i < 6; i++ {
+		synthNote(midiNoteOn, gs.SecondPitch())
+		time.Sleep(time.Duration((60 - 10*i)) * time.Millisecond)
+		synthNote(midiNoteOff, gs.SecondPitch())
+		time.Sleep(20 * time.Millisecond)
+	}
+}
+
+func (gs *GameState) Winning() {
+	gs.Score += gs.Challenge.Bounty
+	fmt.Printf("\n+%d points! [SCORE: %4d]\n", int(gs.Challenge.Bounty), gs.Score)
+	fmt.Println("\n. . . . . . . . . . . . . . . . . . . . ")
+	fmt.Println("")
+	gs.PlayWinning()
+}
+
+func (gs *GameState) Nope() {
+	gs.Challenge.Tries += 1
+	gs.Challenge.Bounty /= 2
+
+	fmt.Println("No. Bounty: ", gs.Challenge.Bounty, "(", gs.Challenge.Tries, "tries )")
+
+	// time.Sleep(200 * time.Millisecond)
+	// synthNote(midiNoteOn, gs.FirstPitch())
+	// time.Sleep(1 * time.Millisecond)
+	// synthNote(midiNoteOff, gs.FirstPitch())
+	// time.Sleep(5 * time.Millisecond)
+	// synthNote(midiNoteOn, gs.FirstPitch())
+	// time.Sleep(1 * time.Millisecond)
+	// synthNote(midiNoteOff, gs.FirstPitch())
+	// time.Sleep(500 * time.Millisecond)
+
+	// go gs.PlayChallenge()
 }
 
 func (gs GameState) FirstPitch() mt.Pitch {
@@ -84,7 +126,7 @@ func (gs *GameState) SetTappedTempo() {
 }
 
 func NewGameState() GameState {
-	gs := GameState{Tempo: 1000, InputReady: false}
+	gs := GameState{Tempo: 1000}
 
 	gs.PrepareChallenge()
 
